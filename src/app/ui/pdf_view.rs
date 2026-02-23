@@ -254,7 +254,8 @@ impl PdfReaderApp {
             .overflow_hidden()
             .bg(colors.pdf_view)
             .flex()
-            .flex_row()
+            .items_center()
+            .justify_center()
             .on_scroll_wheel(cx.listener(|this, event: &ScrollWheelEvent, _window, cx| {
                 match event.delta {
                     ScrollDelta::Pixels(delta) => {
@@ -273,28 +274,13 @@ impl PdfReaderApp {
                     }
                 }
             }))
-            .children([
-                div().flex_1().h_full().cursor_pointer().on_mouse_down(
-                    MouseButton::Left,
-                    cx.listener(|this, _event, _window, cx| {
-                        this.prev_page(cx);
-                    }),
-                ),
+            .child(
                 div()
-                    .flex_1()
-                    .h_full()
                     .flex()
                     .items_center()
                     .justify_center()
-                    .relative()
                     .child(image_container),
-                div().flex_1().h_full().cursor_pointer().on_mouse_down(
-                    MouseButton::Left,
-                    cx.listener(|this, _event, _window, cx| {
-                        this.next_page(cx);
-                    }),
-                ),
-            ])
+            )
     }
 
     #[allow(clippy::too_many_arguments)]

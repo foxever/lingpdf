@@ -24,6 +24,7 @@ menu:
   close_tab: 关闭标签
   save_as: 另存为...
   fit_width: 适应宽度
+  fit_width_centered: 适应宽度（居中）
   fit_page: 适应页面
   rotate_clockwise: 顺时针旋转
   rotate_counter_clockwise: 逆时针旋转

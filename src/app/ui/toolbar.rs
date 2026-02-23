@@ -128,6 +128,14 @@ impl PdfReaderApp {
                 }),
             ))
             .child(toolbar_btn_enabled(
+                "⊡",
+                has_doc,
+                colors,
+                cx.listener(|this, _event, window, cx| {
+                    this.fit_width_centered(window, cx);
+                }),
+            ))
+            .child(toolbar_btn_enabled(
                 "□",
                 has_doc,
                 colors,

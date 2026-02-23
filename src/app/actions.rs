@@ -1,8 +1,8 @@
 use super::PdfReaderApp;
 use crate::app::menu::{
-    CloseTab, FirstPage, FitPage, FitWidth, FullScreen, LastPage, NextPage, OpenFile, PrevPage,
-    Print, Quit, RefreshMenus, ResetZoom, RotateClockwise, RotateCounterClockwise, ToggleSidebar,
-    ToggleTheme, ZoomIn, ZoomOut,
+    CloseTab, FirstPage, FitPage, FitWidth, FitWidthCentered, FullScreen, LastPage, NextPage,
+    OpenFile, PrevPage, Print, Quit, RefreshMenus, ResetZoom, RotateClockwise,
+    RotateCounterClockwise, ToggleSidebar, ToggleTheme, ZoomIn, ZoomOut,
 };
 use gpui::{prelude::*, App, WindowHandle};
 
@@ -86,6 +86,15 @@ pub fn register_actions(cx: &mut App, window_handle: WindowHandle<PdfReaderApp>)
     // Fit actions
     register_window_action::<FitWidth, _>(cx, &window_handle, |app, cx| {
         app.fit_width(cx);
+    });
+    cx.on_action({
+        move |_: &FitWidthCentered, cx: &mut App| {
+            window_handle
+                .update(cx, |app: &mut PdfReaderApp, window, cx| {
+                    app.fit_width_centered(window, cx);
+                })
+                .ok();
+        }
     });
     register_window_action::<FitPage, _>(cx, &window_handle, |app, cx| {
         app.fit_page(cx);

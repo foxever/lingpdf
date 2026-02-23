@@ -24,6 +24,7 @@ menu:
   close_tab: Cerrar pestaña
   save_as: Guardar como...
   fit_width: Ajustar a ancho
+  fit_width_centered: Ajustar a ancho (Centrado)
   fit_page: Ajustar a página
   rotate_clockwise: Girar en sentido horario
   rotate_counter_clockwise: Girar en sentido antihorario

@@ -24,6 +24,7 @@ menu:
   close_tab: Close Tab
   save_as: Save As...
   fit_width: Fit Width
+  fit_width_centered: Fit Width (Centered)
   fit_page: Fit Page
   rotate_clockwise: Rotate Clockwise
   rotate_counter_clockwise: Rotate Counter-Clockwise

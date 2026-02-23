@@ -95,6 +95,50 @@ impl PdfReaderApp {
         }
     }
 
+    /// Fit page width to viewport with centered layout (optimized for landscape/PPT PDFs)
+    pub fn fit_width_centered(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(tab_id) = self.state.get_active_tab_id() {
+            if let Some(tab) = self.state.tabs.get_tab(tab_id) {
+                if let Some(ref pdf_doc) = tab.doc {
+                    let current_page = tab.current_page;
+                    if let Ok((page_width, page_height)) = pdf_doc.get_page_size(current_page) {
+                        let viewport = window.viewport_size();
+                        let viewport_width: f32 = viewport.width.into();
+                        let viewport_height: f32 = viewport.height.into();
+
+                        // Calculate available content area
+                        let sidebar_width = if self.show_sidebar {
+                            SIDEBAR_WIDTH
+                        } else {
+                            0.0
+                        };
+                        let available_width = viewport_width - sidebar_width;
+                        let available_height = viewport_height - TOOLBAR_HEIGHT - STATUS_BAR_HEIGHT;
+
+                        // Calculate zoom to fit width with padding
+                        let horizontal_padding = 40.0; // 20px padding on each side
+                        let target_width = available_width - horizontal_padding;
+                        let zoom_width = target_width / page_width;
+
+                        // Calculate zoom to fit height with padding
+                        let vertical_padding = 40.0; // 20px padding on top and bottom
+                        let target_height = available_height - vertical_padding;
+                        let zoom_height = target_height / page_height;
+
+                        // Use the smaller zoom to ensure page fits both dimensions
+                        let zoom = zoom_width.min(zoom_height).clamp(MIN_ZOOM, MAX_ZOOM);
+
+                        self.state.update_active_tab(|tab| {
+                            tab.zoom = zoom;
+                        });
+                        self.render_current_tab_page(tab_id, cx);
+                        cx.notify();
+                    }
+                }
+            }
+        }
+    }
+
     pub fn open_file_in_new_tab(&mut self, path: std::path::PathBuf, cx: &mut Context<Self>) {
         match self.state.open_file_new_tab(path) {
             Ok(tab_id) => {
