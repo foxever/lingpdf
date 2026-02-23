@@ -1,3 +1,4 @@
+use crate::app::STATUS_BAR_HEIGHT;
 use crate::theme::ThemeColors;
 use crate::tr;
 use gpui::*;
@@ -32,7 +33,7 @@ impl PdfReaderApp {
         let page_count_clone = page_count;
 
         div()
-            .h(px(20.0))
+            .h(px(STATUS_BAR_HEIGHT))
             .w_full()
             .flex()
             .flex_row()

@@ -1,6 +1,14 @@
-use crate::pdf::PdfDocument;
+use crate::pdf::{PageText, PdfDocument};
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+
+#[derive(Clone, Debug)]
+pub struct SelectionRegion {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
 
 #[derive(Clone)]
 pub struct Tab {
@@ -14,6 +22,16 @@ pub struct Tab {
     pub outline_items: Option<Vec<crate::pdf::OutlineItem>>,
     pub page_image: Option<Arc<gpui::RenderImage>>,
     pub page_dimensions: Option<(u32, u32)>,
+    pub page_text: Option<PageText>,
+    // Text selection state
+    pub selection_start: Option<(f32, f32)>,
+    pub selection_end: Option<(f32, f32)>,
+    pub selected_text: String,
+    // Multiple selection regions for multi-line selection
+    pub selection_regions: Vec<SelectionRegion>,
+    // Image container offset in window coordinates (for coordinate conversion)
+    #[allow(dead_code)]
+    pub image_offset: Option<(f32, f32)>,
 }
 
 impl Tab {
@@ -29,6 +47,12 @@ impl Tab {
             outline_items: None,
             page_image: None,
             page_dimensions: None,
+            page_text: None,
+            selection_start: None,
+            selection_end: None,
+            selected_text: String::new(),
+            selection_regions: Vec::new(),
+            image_offset: None,
         }
     }
 

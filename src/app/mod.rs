@@ -13,11 +13,17 @@ pub const DPI_SCALE: f32 = 2.0;
 pub const WINDOW_DEFAULT_WIDTH: f32 = 1200.0;
 pub const WINDOW_DEFAULT_HEIGHT: f32 = 800.0;
 
+// Layout constants - must match the actual UI layout
+pub const TOOLBAR_HEIGHT: f32 = 32.0;
+pub const STATUS_BAR_HEIGHT: f32 = 20.0;
+pub const SIDEBAR_WIDTH: f32 = 200.0;
+
 pub mod actions;
 pub mod menu;
 pub mod shortcuts;
 pub mod state;
 pub mod tabs;
+pub mod text_selection;
 pub mod ui;
 pub mod widgets;
 
@@ -27,6 +33,10 @@ pub struct PdfReaderApp {
     pub state: Arc<AppState>,
     pub show_sidebar: bool,
     focus_handle: FocusHandle,
+    // Text selection state
+    pub is_selecting: bool,
+    pub selection_start: Option<(f32, f32)>,
+    pub selection_end: Option<(f32, f32)>,
 }
 
 impl PdfReaderApp {
@@ -41,6 +51,9 @@ impl PdfReaderApp {
             state,
             show_sidebar: false,
             focus_handle,
+            is_selecting: false,
+            selection_start: None,
+            selection_end: None,
         }
     }
 
@@ -132,6 +145,21 @@ impl PdfReaderApp {
                 let current_page = tab.current_page;
                 let zoom = tab.zoom;
                 let rotation = tab.rotation;
+
+                // Extract text from page
+                // Clear selection when rendering a new page
+                self.clear_selection(_cx);
+
+                match pdf_doc.extract_page_text(current_page) {
+                    Ok(page_text) => {
+                        self.state.tabs.update_tab(tab_id, |tab| {
+                            tab.page_text = Some(page_text);
+                        });
+                    }
+                    Err(e) => {
+                        log::error!("Failed to extract text from page: {}", e);
+                    }
+                }
 
                 match pdf_doc.render_page(current_page, zoom) {
                     Ok((data, pixmap_width, pixmap_height)) => {
@@ -282,6 +310,74 @@ impl PdfReaderApp {
                     .detach();
                 }
             }
+        }
+    }
+
+    /// Copy selected text to clipboard
+    pub fn copy_selected_text(&mut self, cx: &mut Context<Self>) {
+        if let Some(tab_id) = self.state.get_active_tab_id() {
+            if let Some(tab) = self.state.tabs.get_tab(tab_id) {
+                let selected_text = tab.selected_text.clone();
+                if !selected_text.is_empty() {
+                    cx.write_to_clipboard(gpui::ClipboardItem::new_string(selected_text));
+                }
+            }
+        }
+    }
+
+    /// Update text selection based on mouse coordinates
+    pub fn update_text_selection(
+        &mut self,
+        start_x: f32,
+        start_y: f32,
+        end_x: f32,
+        end_y: f32,
+        cx: &mut Context<Self>,
+    ) {
+        if let Some(tab_id) = self.state.get_active_tab_id() {
+            if let Some(tab) = self.state.tabs.get_tab(tab_id) {
+                if let Some(ref page_text) = tab.page_text {
+                    if let (Some(doc), Some((page_width, page_height))) =
+                        (&tab.doc, tab.page_dimensions)
+                    {
+                        // Get the actual page size in PDF points
+                        if let Ok((pdf_width, pdf_height)) = doc.get_page_size(tab.current_page) {
+                            let (selected_text, selection_regions) =
+                                text_selection::calculate_text_selection(
+                                    page_text,
+                                    pdf_width,
+                                    pdf_height,
+                                    page_width,
+                                    page_height,
+                                    start_x,
+                                    start_y,
+                                    end_x,
+                                    end_y,
+                                );
+
+                            self.state.tabs.update_tab(tab_id, |tab| {
+                                tab.selection_regions = selection_regions;
+                                tab.selected_text = selected_text;
+                            });
+
+                            cx.notify();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Clear text selection
+    pub fn clear_selection(&mut self, cx: &mut Context<Self>) {
+        if let Some(tab_id) = self.state.get_active_tab_id() {
+            self.state.tabs.update_tab(tab_id, |tab| {
+                tab.selection_start = None;
+                tab.selection_end = None;
+                tab.selected_text = String::new();
+                tab.selection_regions.clear();
+            });
+            cx.notify();
         }
     }
 }

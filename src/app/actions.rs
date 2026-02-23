@@ -12,7 +12,7 @@ where
     A: gpui::Action + 'static,
     F: Fn(&mut PdfReaderApp, &mut Context<PdfReaderApp>) + Clone + 'static,
 {
-    let window_handle = window_handle.clone();
+    let window_handle = *window_handle;
     cx.on_action(move |_: &A, cx: &mut App| {
         window_handle
             .update(cx, |app: &mut PdfReaderApp, _window, cx| {
@@ -36,7 +36,6 @@ pub fn register_actions(cx: &mut App, window_handle: WindowHandle<PdfReaderApp>)
 
     // Open file action
     cx.on_action({
-        let window_handle = window_handle.clone();
         move |_: &OpenFile, cx: &mut App| {
             window_handle
                 .update(cx, |app: &mut PdfReaderApp, _window, cx| {
@@ -48,7 +47,6 @@ pub fn register_actions(cx: &mut App, window_handle: WindowHandle<PdfReaderApp>)
 
     // Close tab action
     cx.on_action({
-        let window_handle = window_handle.clone();
         move |_: &CloseTab, cx: &mut App| {
             window_handle
                 .update(cx, |app: &mut PdfReaderApp, _window, cx| {
@@ -112,7 +110,6 @@ pub fn register_actions(cx: &mut App, window_handle: WindowHandle<PdfReaderApp>)
 
     // Fullscreen action
     cx.on_action({
-        let window_handle = window_handle.clone();
         move |_: &FullScreen, cx: &mut App| {
             window_handle
                 .update(cx, |_app, window, _cx| {

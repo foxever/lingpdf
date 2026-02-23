@@ -64,6 +64,8 @@ make build-all    # All platforms
 | Fit | ↔ fit width, □ fit page |
 | Rotate | ↻ / ↺ buttons |
 | Print | 🖨️ button (macOS native dialog) |
+| Text Selection | Click 👋/🖱️ button to toggle hand/text select mode, then drag to select |
+| Copy Text | Select text, then press ⌘+C (macOS) or Ctrl+C (Windows/Linux) |
 | Sidebar | 📑 / 📖 toggle outline |
 | Scroll mode | 📄 / 📜 toggle page/smooth scroll |
 | Theme | Click 🌙 / ☀️ icon |
@@ -106,7 +108,7 @@ make build-all    # All platforms
 - [x] Custom zoom levels
 
 #### Advanced
-- [ ] Text selection and copy
+- [x] Text selection and copy
 - [ ] Annotation support
 - [ ] Form filling
 - [ ] Digital signatures

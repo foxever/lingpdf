@@ -34,12 +34,14 @@ pub struct TextChar {
     pub y: f32,
     pub width: f32,
     pub height: f32,
+    #[allow(dead_code)]
     pub font_size: f32,
 }
 
 /// Represents text content extracted from a page
 #[derive(Debug, Clone)]
 pub struct PageText {
+    #[allow(dead_code)]
     pub text: String,
     pub chars: Vec<TextChar>,
 }
@@ -234,7 +236,7 @@ impl PdfDocument {
                     chars.push(TextChar {
                         char: ch,
                         x: bounds.left().value,
-                        y: bounds.top().value,
+                        y: bounds.bottom().value, // Store bottom Y for consistent comparisons
                         width: bounds.width().value,
                         height: bounds.height().value,
                         font_size: char_info.scaled_font_size().value,
@@ -247,6 +249,7 @@ impl PdfDocument {
     }
 
     /// Extract text from a specific region of a page
+    #[allow(dead_code)]
     pub fn extract_text_in_rect(
         &self,
         page_num: usize,

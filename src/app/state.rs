@@ -14,6 +14,13 @@ pub enum ScrollMode {
     Smooth,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum SelectionMode {
+    #[default]
+    Hand, // Hand cursor - for navigation
+    TextSelect, // IBeam cursor - for text selection
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub recent_files: Vec<String>,
@@ -21,6 +28,7 @@ pub struct AppConfig {
     pub theme: Theme,
     pub language: Language,
     pub scroll_mode: ScrollMode,
+    pub selection_mode: SelectionMode,
 }
 
 impl Default for AppConfig {
@@ -31,6 +39,7 @@ impl Default for AppConfig {
             theme: Theme::Dark,
             language: Language::default(),
             scroll_mode: ScrollMode::default(),
+            selection_mode: SelectionMode::default(),
         }
     }
 }
@@ -188,6 +197,28 @@ impl AppState {
 
     pub fn get_scroll_mode(&self) -> ScrollMode {
         self.config.lock().unwrap().scroll_mode
+    }
+
+    #[allow(dead_code)]
+    pub fn set_selection_mode(&self, selection_mode: SelectionMode) {
+        let mut config = self.config.lock().unwrap();
+        config.selection_mode = selection_mode;
+        self.save_config(&config);
+    }
+
+    pub fn get_selection_mode(&self) -> SelectionMode {
+        self.config.lock().unwrap().selection_mode
+    }
+
+    pub fn toggle_selection_mode(&self) -> SelectionMode {
+        let mut config = self.config.lock().unwrap();
+        config.selection_mode = match config.selection_mode {
+            SelectionMode::Hand => SelectionMode::TextSelect,
+            SelectionMode::TextSelect => SelectionMode::Hand,
+        };
+        let mode = config.selection_mode;
+        self.save_config(&config);
+        mode
     }
 
     pub fn get_recent_files(&self) -> Vec<String> {

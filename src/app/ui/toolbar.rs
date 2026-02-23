@@ -1,5 +1,6 @@
-use crate::app::state::ScrollMode;
+use crate::app::state::{ScrollMode, SelectionMode};
 use crate::app::widgets::{toolbar_btn, toolbar_btn_enabled, toolbar_btn_with_color};
+use crate::app::TOOLBAR_HEIGHT;
 use crate::i18n::Language;
 use crate::theme::{Theme, ThemeColors};
 use gpui::*;
@@ -34,8 +35,14 @@ impl PdfReaderApp {
             ScrollMode::Smooth => "📜",
         };
 
+        let selection_mode = self.state.get_selection_mode();
+        let selection_emoji = match selection_mode {
+            SelectionMode::Hand => "👋",
+            SelectionMode::TextSelect => "🖱️",
+        };
+
         div()
-            .h(px(32.0))
+            .h(px(TOOLBAR_HEIGHT))
             .w_full()
             .flex()
             .flex_row()
@@ -188,6 +195,17 @@ impl PdfReaderApp {
                         ScrollMode::Smooth => ScrollMode::Page,
                     };
                     this.state.set_scroll_mode(next_mode);
+                    cx.notify();
+                }),
+            ))
+            .child(div().w(px(4.0)))
+            .child(toolbar_btn_enabled(
+                selection_emoji,
+                has_doc,
+                colors,
+                cx.listener(|this, _event, _window, cx| {
+                    this.clear_selection(cx);
+                    this.state.toggle_selection_mode();
                     cx.notify();
                 }),
             ))

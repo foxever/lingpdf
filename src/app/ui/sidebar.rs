@@ -1,3 +1,4 @@
+use crate::app::SIDEBAR_WIDTH;
 use crate::pdf::OutlineItem;
 use crate::theme::ThemeColors;
 use crate::tr;
@@ -21,7 +22,7 @@ impl PdfReaderApp {
         let has_doc = active_tab_id.is_some();
 
         div()
-            .w(px(200.0))
+            .w(px(SIDEBAR_WIDTH))
             .h_full()
             .flex()
             .flex_col()
